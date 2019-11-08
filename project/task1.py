@@ -59,11 +59,11 @@ class Uploader:
             if process.is_alive():
                 process.terminate()
                 stop_files += 1
-
-        progress = self._progress_queue.get()
-        update_progress = (progress[0], progress[1] + stop_files, progress[2])
-        print('Done: {}, Error: {}, Total:{}'.format(*update_progress))
-        self._progress_queue.put(update_progress)
+        if self._progress_queue:
+            progress = self._progress_queue.get()
+            update_progress = (progress[0], progress[1] + stop_files, progress[2])
+            print('Done: {}, Error: {}, Total:{}'.format(*update_progress))
+            self._progress_queue.put(update_progress)
 
 
 class Upload(Process):
@@ -108,7 +108,7 @@ def validate_command(input_string):
     return command_string[0], param
 
 
-if __name__ == '__main__':
+def main(files_list, default_processes_count=1):
     """
     Command 'upload' to uploading files by several processes,
         has 'parameter processes_count', default = 1
@@ -124,11 +124,7 @@ if __name__ == '__main__':
     Example:
         exit
     """
-    default_processes_count = 1
-    files_list = ['link1', 'link2', 'link3', 'link4', 'link5', 'link6',
-                  'link7', 'link8', 'link9', 'link10', 'link11', 'link12',
-                  'link13', 'link14', 'link15', 'link16', 'link17', 'link18',
-                  'link19', 'link20']
+
     uploader = Uploader()
     progress_queue = Queue()
     while True:
@@ -154,3 +150,8 @@ if __name__ == '__main__':
             else:
                 uploader.terminate_all()
     print('Exit')
+
+
+if __name__ == '__main__':
+    files_list = ['link1', 'link2', 'link3', 'link4', 'link5']
+    main(files_list)
