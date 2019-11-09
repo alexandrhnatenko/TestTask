@@ -61,7 +61,8 @@ class Uploader:
                 stop_files += 1
         if self._progress_queue:
             progress = self._progress_queue.get()
-            update_progress = (progress[0], progress[1] + stop_files, progress[2])
+            update_progress = (
+                progress[0], progress[1] + stop_files, progress[2])
             print('Done: {}, Error: {}, Total:{}'.format(*update_progress))
             self._progress_queue.put(update_progress)
 
@@ -83,8 +84,8 @@ class Upload(Process):
             self._progress_queue.put(update_progress)
 
     def uploading(self, content):
-        print('Start upload file "{}" in process "{}"'.format(
-            content, self.name))
+        # print('Start upload file "{}" in process "{}"'.format(
+        #     content, self.name))
         time.sleep(5)
 
 
@@ -128,8 +129,7 @@ def main(files_list, default_processes_count=1):
     uploader = Uploader()
     progress_queue = Queue()
     while True:
-        print('Enter command :')
-        input_string = input()
+        input_string = input('Enter command : ')
         try:
             command, param = validate_command(input_string)
         except:
