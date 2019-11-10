@@ -21,6 +21,12 @@ class Capturing(list):
         sys.stdout = self._stdout
 
 
+def generate_input(list_commands, list_intervals):
+    for i in range(len(list_commands)):
+        time.sleep(list_intervals[i])
+        yield list_commands[i]
+
+
 class TestTask1(TestCase):
     def setUp(self):
         self.files = ['link1', 'link2', 'link3', 'link4', 'link5']
@@ -46,29 +52,50 @@ class TestTask1(TestCase):
             task1_main(self.files)
         self.assertEqual('Invalid command', output[0])
 
-    @patch('builtins.input', side_effect=['upload', 'exit'], )
+    @patch('builtins.input',
+           side_effect=generate_input(['upload', 'exit'], [0.1, 26]))
     def test_upload_command_without_parameter(self, *args):
         with Capturing() as output:
             task1_main(self.files)
-        self.assertEqual('Invalid command', output[0])
+        correct_output = ['Done: 0, Error: 0, Total:5',
+                          'Done: 5, Error: 0, Total:5',
+                          'Exit']
+        self.assertEqual(correct_output, output)
 
-    @patch('builtins.input', side_effect=['upload 4', 'exit'])
+    @patch('builtins.input',
+           side_effect=generate_input(['upload 4', 'exit'], [0.1, 11]))
     def test_upload_command_with_parameter(self, *args):
         with Capturing() as output:
             task1_main(self.files)
-        self.assertEqual('Invalid command', output[0])
+        correct_output = ['Done: 0, Error: 0, Total:5',
+                          'Done: 5, Error: 0, Total:5',
+                          'Exit']
+        self.assertEqual(correct_output, output)
 
-    @patch('builtins.input', side_effect=['stop', 'exit'])
+    @patch('builtins.input',
+           side_effect=generate_input(['upload 4', 'stop', 'exit'],
+                                      [0.1, 1, 1]))
     def test_stop_command_without_parameter(self, *args):
         with Capturing() as output:
             task1_main(self.files)
-        self.assertEqual('Invalid command', output[0])
+        correct_output = ['Done: 0, Error: 0, Total:5',
+                          'Done: 0, Error: 5, Total:5',
+                          'Done: 0, Error: 5, Total:5',
+                          'Exit']
+        self.assertEqual(correct_output, output)
 
-    @patch('builtins.input', side_effect=['stop 3', 'exit'])
+    @patch('builtins.input',
+           side_effect=generate_input(['upload 5', 'stop 1', 'stop 3', 'exit'],
+                                      [0.1, 1, 1, 4]))
     def test_stop_command_with_parameter(self, *args):
         with Capturing() as output:
             task1_main(self.files)
-        self.assertEqual('Invalid command', output[0])
+        correct_output = ['Done: 0, Error: 0, Total:5',
+                          'Done: 0, Error: 1, Total:5',
+                          'Done: 0, Error: 2, Total:5',
+                          'Done: 3, Error: 2, Total:5',
+                          'Exit']
+        self.assertEqual(correct_output, output)
 
 
 class TestTask2(TestCase):
